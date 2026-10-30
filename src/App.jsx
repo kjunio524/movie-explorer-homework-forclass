@@ -11,11 +11,17 @@ function App() {
   const [movies, setMovies] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("");
+  const [page, setPage] = useState(1);
+
+  const handleSeachChange = (e) => {
+    setSearchQuery(e.target.value);
+    setPage(1);
+  }
 
   useEffect(() => {
     const url = searchQuery
-      ? `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(searchQuery)}`
-      : `${BASE_URL}/movie/popular?api_key=${API_KEY}`;
+      ? `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(searchQuery)}&page=${page}`
+      : `${BASE_URL}/movie/popular?api_key=${API_KEY}&page=${page}`;
 
     fetch(url)
       .then((res) => res.json())
@@ -25,7 +31,7 @@ function App() {
       .catch((error) => {
         console.error("Error fetching movies:", error);
       });
-  }, [searchQuery]);
+  }, [searchQuery, page]);
 
   const sortedMovies = [...movies].sort((a, b) => {
     if (sortBy === "popularity") {
@@ -49,7 +55,7 @@ function App() {
       <section className="controls-container">
         <input type="text" placeholder="Search for a movie..."
         value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
+        onChange={handleSeachChange}
         />
 
       <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
@@ -77,7 +83,19 @@ function App() {
       </div>
     ))}
     </main>
+
+    <div className="pagination">
+      <button onClick={() => setPage((prev) => prev - 1)}
+        disabled={page === 1}
+      >
+        Previous
+      </button>
+      <span>Page {page}</span>
+      <button onClick={() => setPage((prev) => prev + 1)}>
+        Next
+      </button>
     </div>
+  </div>
   );
 }
 
